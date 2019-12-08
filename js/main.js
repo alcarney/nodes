@@ -56,10 +56,12 @@ class Canvas {
         this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this))
         this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this))
         this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this))
+        this.canvas.addEventListener('resize', this.onResize.bind(this))
+        this.canvas.addEventListener('wheel', this.onScroll.bind(this))
 
         root.appendChild(this.canvas)
         this.calcViewBox()
-    }
+    } 2
 
     calcViewBox() {
         const bbox = this.canvas.getBoundingClientRect()
@@ -107,6 +109,18 @@ class Canvas {
         this.calcViewBox()
 
         console.debug("[canvas]: mousemove", delta)
+    }
+
+    onResize() {
+        console.debug("[canvas]: resize")
+        this.calcViewBox()
+    }
+
+    onScroll(event) {
+        this.scale = this.scale + (event.deltaY * this.scale * 0.02)
+        this.calcViewBox()
+
+        console.debug("[canvas]: scroll", this.scale)
     }
 }
 
