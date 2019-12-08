@@ -1,46 +1,37 @@
 const svgns = "http://www.w3.org/2000/svg"
 
 class Grid {
-    constructor(width, height, scale) {
-        this.minX = -(width / 2)
-        this.maxX = width / 2
+    constructor(scale, num) {
 
-        this.minY = -(height / 2)
-        this.maxY = height / 2
+        this.min = -(scale / 2)
+        this.max = scale / 2
 
-        this.scale = scale
+        this.num = num
         this.constructGrid()
     }
 
     constructGrid() {
-        this.rows = []
-        this.columns = []
+        this.lines = []
 
-        let x = this.minX - this.scale
-        let y = this.minY - this.scale
+        const spacing = (this.max - this.min) / this.num
 
-        while (x < this.maxX) {
-            x += this.scale
+        for (let n = 0; n <= this.num; n++) {
+            const p = this.min + (n * spacing)
 
-            const line = document.createElementNS(svgns, "line")
-            line.setAttribute("x1", x)
-            line.setAttribute("x2", x)
-            line.setAttribute("y1", this.minY)
-            line.setAttribute("y2", this.maxY)
+            const col = document.createElementNS(svgns, "line")
+            col.setAttribute("x1", p)
+            col.setAttribute("x2", p)
+            col.setAttribute("y1", this.min)
+            col.setAttribute("y2", this.max)
 
-            this.columns.push(line)
-        }
+            const row = document.createElementNS(svgns, "line")
+            row.setAttribute("x1", this.min)
+            row.setAttribute("x2", this.max)
+            row.setAttribute("y1", p)
+            row.setAttribute("y2", p)
 
-        while (y < this.maxY) {
-            y += this.scale
-
-            const line = document.createElementNS(svgns, "line")
-            line.setAttribute("x1", this.minX)
-            line.setAttribute("x2", this.maxX)
-            line.setAttribute("y1", y)
-            line.setAttribute("y2", y)
-
-            this.rows.push(line)
+            this.lines.push(col)
+            this.lines.push(row)
         }
     }
 }
@@ -127,12 +118,8 @@ class Canvas {
 const main = document.getElementById("canvas")
 const canvas = new Canvas(main, 100)
 
-const grid = new Grid(canvas.width, canvas.height, 10)
+const grid = new Grid(canvas.height, 25)
 
-for (let c in grid.columns) {
-    canvas.canvas.appendChild(grid.columns[c])
-}
-
-for (let r in grid.rows) {
-    canvas.canvas.appendChild(grid.rows[r])
+for (let c in grid.lines) {
+    canvas.canvas.appendChild(grid.lines[c])
 }
