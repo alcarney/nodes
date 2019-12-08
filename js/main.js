@@ -11,7 +11,7 @@ class Grid {
   }
 
   constructGrid() {
-    this.lines = []
+    this.elements = []
 
     const spacing = (this.max - this.min) / this.num
 
@@ -30,8 +30,8 @@ class Grid {
       row.setAttribute("y1", p)
       row.setAttribute("y2", p)
 
-      this.lines.push(col)
-      this.lines.push(row)
+      this.elements.push(col)
+      this.elements.push(row)
     }
   }
 }
@@ -52,7 +52,7 @@ class Canvas {
 
     root.appendChild(this.canvas)
     this.calcViewBox()
-  } 2
+  }
 
   calcViewBox() {
     const bbox = this.canvas.getBoundingClientRect()
@@ -113,13 +113,23 @@ class Canvas {
 
     console.debug("[canvas]: scroll", this.scale)
   }
+
+  setBackground(item) {
+    const g = document.createElementNS(svgns, 'g')
+
+    for (let e in item.elements) {
+      g.appendChild(item.elements[e])
+    }
+
+    this.background = g
+    this.canvas.appendChild(g)
+  }
+
+
 }
 
 const main = document.getElementById("canvas")
 const canvas = new Canvas(main, 100)
 
 const grid = new Grid(canvas.height, 25)
-
-for (let c in grid.lines) {
-  canvas.canvas.appendChild(grid.lines[c])
-}
+canvas.setBackground(grid)
