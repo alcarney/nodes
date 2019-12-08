@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+svg {
+  height: 100vh;
+  width: 100vw;
+  background: #222;
+}
+
+line {
+  stroke: #333;
+  stroke-width: .2;
+}
