@@ -36,6 +36,19 @@ class Grid {
   }
 }
 
+class Node {
+  constructor() {
+    this.elements = []
+
+    const rect = document.createElementNS(svgns, 'rect')
+    rect.setAttribute("width", 20)
+    rect.setAttribute("height", 20)
+    rect.setAttribute("rx", 1)
+
+    this.elements.push(rect)
+  }
+}
+
 class Canvas {
   constructor(root, scale) {
     this.canvas = document.createElementNS(svgns, "svg")
@@ -125,7 +138,15 @@ class Canvas {
     this.canvas.appendChild(g)
   }
 
+  addItem(item) {
+    const g = document.createElementNS(svgns, 'g')
 
+    for (let e in item.elements) {
+      g.appendChild(item.elements[e])
+    }
+
+    this.canvas.appendChild(g)
+  }
 }
 
 const main = document.getElementById("canvas")
@@ -133,3 +154,6 @@ const canvas = new Canvas(main, 100)
 
 const grid = new Grid(canvas.height, 25)
 canvas.setBackground(grid)
+
+const node = new Node()
+canvas.addItem(node)

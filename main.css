@@ -13,3 +13,7 @@ line {
   stroke: #333;
   stroke-width: .2;
 }
+
+rect {
+  fill: #888;
+}
