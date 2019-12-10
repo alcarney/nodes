@@ -1,0 +1,22 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup Node.js 
+      uses: actions/setup-node@v1.1.0
+      
+    - run: |
+        npm ci
+        npm build
+        
+        ls public
+      name: Build
+    
