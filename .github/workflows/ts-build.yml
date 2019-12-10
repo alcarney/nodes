@@ -1,6 +1,9 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
 
 jobs:
   build:
@@ -9,14 +12,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-      
-    - name: Setup Node.js 
+
+    - name: Setup Node.js
       uses: actions/setup-node@v1.1.0
-      
+
     - run: |
         npm ci
-        npm build
-        
+        npm run build
+
         ls public
       name: Build
-    
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BASE_BRANCH: master
+        BRANCH: gh-pages
+        FOLDER: public
