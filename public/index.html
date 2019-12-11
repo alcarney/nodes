@@ -7,26 +7,12 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 
     <link rel="stylesheet" href="main.css" />
-    <script src="main.js"></script>
+
 </head>
 
 <body>
     <main id="canvas"></main>
-    <script type="text/javascript">
-        const main = document.getElementById("canvas")
-
-        if (main === null) {
-            throw new Error("Could not find canvas element")
-        }
-
-        const canvas = new Canvas(main, 100)
-
-        const grid = new Grid(canvas.height, 25)
-        canvas.setBackground(grid)
-
-        const node = new EditorNode()
-        canvas.addItem(node)
-    </script>
+    <script src="main.js"></script>
 </body>
 
 </html>
