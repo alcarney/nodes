@@ -14,22 +14,47 @@ class Point {
   }
 }
 
+class ViewBox {
+  xMin: number
+  yMin: number
+  width: number
+  height: number
+
+  constructor(xMin: number, yMin: number, width: number, height: number) {
+    this.xMin = xMin
+    this.yMin = yMin
+    this.width = width
+    this.height = height
+  }
+
+  toString(): string {
+    return `${this.xMin} ${this.yMin} ${this.width} ${this.height}`
+  }
+}
+
 
 export interface CanvasItem {
   elements: SVGElement[]
 }
 
+function makeTouchGuide(touch: Touch): SVGElement {
+  const guide = document.createElementNS(svgns, 'circle');
+  guide.setAttribute("class", "debug")
+  guide.setAttribute("id", "touch-" + touch.identifier)
+  guide.setAttribute("r", "10")
+
+  return guide;
+}
+
 export class Canvas {
 
   offset: Point
+  scale: number
+  viewBox: ViewBox
 
   clickOffset: Point
   clickPosition: Point
-
-  scale: number
-
-  width: number
-  height: number
+  currentTouches: Touch[]
 
   canvas: SVGElement
   background?: SVGElement
@@ -40,10 +65,10 @@ export class Canvas {
     this.offset = new Point(0, 0)
     this.clickPosition = new Point(0, 0)
     this.clickOffset = new Point(0, 0)
+    this.currentTouches = [];
 
-    this.width = 1
-    this.height = 1
     this.scale = scale
+    this.viewBox = new ViewBox(0, 0, scale, scale)
 
     // Mouse support
     this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this), false)
@@ -67,14 +92,14 @@ export class Canvas {
     const bbox = this.canvas.getBoundingClientRect()
     const aspectRatio = bbox.width / bbox.height
 
-    this.height = this.scale
-    this.width = aspectRatio * this.height
+    const height = this.scale
+    const width = aspectRatio * height
 
-    const xMin = this.offset.x - (this.width / 2)
-    const yMin = this.offset.y - (this.height / 2)
+    const xMin = this.offset.x - (width / 2)
+    const yMin = this.offset.y - (height / 2)
 
-    const viewBoxStr = `${xMin} ${yMin} ${this.width} ${this.height}`
-    this.canvas.setAttribute("viewBox", viewBoxStr)
+    this.viewBox = new ViewBox(xMin, yMin, width, height)
+    this.canvas.setAttribute("viewBox", this.viewBox.toString())
   }
 
   getMousePosition(event: MouseEvent | Touch): Point {
@@ -105,8 +130,8 @@ export class Canvas {
     const mousePos = this.getMousePosition(event)
     const delta = mousePos.minus(this.clickPosition)
 
-    const x = this.clickOffset.x - (delta.x * this.width)
-    const y = this.clickOffset.y - (delta.y * this.height)
+    const x = this.clickOffset.x - (delta.x * this.viewBox.width)
+    const y = this.clickOffset.y - (delta.y * this.viewBox.height)
 
     this.offset = new Point(x, y)
     this.calcViewBox()
@@ -134,6 +159,20 @@ export class Canvas {
     this.clickOffset = new Point(this.offset.x, this.offset.y)
     this.clickPosition = this.getMousePosition(touch)
 
+    for (let i = 0; i < event.changedTouches.length; i++) {
+      const touch = event.changedTouches[i];
+      const pos = this.getMousePosition(touch)
+
+      const x = this.viewBox.xMin + (pos.x * this.viewBox.width)
+      const y = this.viewBox.yMin + (pos.y * this.viewBox.height)
+
+      const guide = makeTouchGuide(touch)
+      guide.setAttribute("cx", x.toString())
+      guide.setAttribute("cy", y.toString())
+
+      this.canvas.appendChild(guide)
+    }
+
     console.debug("[canvas]: touchstart", this.clickPosition)
   }
 
@@ -141,22 +180,48 @@ export class Canvas {
     event.preventDefault()
 
     // Assume a single touch for now
-    const touch = event.changedTouches[0]
+    for (let i = 0; i < event.changedTouches.length; i++) {
+      const touch = event.changedTouches[i]
+      const pos = this.getMousePosition(touch)
+
+      const x = this.viewBox.xMin + (pos.x * this.viewBox.width)
+      const y = this.viewBox.yMin + (pos.y * this.viewBox.height)
+
+      const guide = document.getElementById("touch-" + touch.identifier)
+
+      if (guide !== null) {
+        guide.setAttribute("cx", x.toString())
+        guide.setAttribute("cy", y.toString())
+      }
+    }
+
+    /*
     const touchPos = this.getMousePosition(touch)
     const delta = touchPos.minus(this.clickPosition)
 
-    const x = this.clickOffset.x - (delta.x * this.width)
-    const y = this.clickOffset.y - (delta.y * this.height)
+    const x = this.clickOffset.x - (delta.x * this.viewBox.width)
+    const y = this.clickOffset.y - (delta.y * this.viewBox.height)
 
     this.offset = new Point(x, y)
     this.calcViewBox()
 
-    console.debug("[canvas]: touchmove", delta)
+    */
+
+    console.debug("[canvas]: touchmove")
   }
 
   onTouchEnd(event: TouchEvent) {
     event.preventDefault()
-    console.debug("[canvas]: touchend", event)
+    console.debug("[canvas]: touchend")
+
+    for (let i = 0; i < event.changedTouches.length; i++) {
+      const touch = event.changedTouches[i];
+      const guide = document.getElementById("touch-" + touch.identifier)
+
+      if (guide !== null) {
+        this.canvas.removeChild(guide)
+      }
+    }
   }
 
   setBackground(item: CanvasItem) {

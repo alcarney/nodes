@@ -17,3 +17,9 @@ line {
 rect {
   fill: #888;
 }
+
+circle.debug {
+  fill: none;
+  stroke: #f00;
+  stroke-width: .2;
+}

@@ -9,7 +9,7 @@ if (main === null) {
 
 const canvas = new Canvas(main, 100)
 
-const grid = new Grid(canvas.height, 25)
+const grid = new Grid(canvas.viewBox.height, 25)
 canvas.setBackground(grid)
 
 const node = new EditorNode()
