@@ -45,11 +45,19 @@ export class Canvas {
     this.height = 1
     this.scale = scale
 
-    this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this))
-    this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this))
-    this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this))
-    this.canvas.addEventListener('resize', this.onResize.bind(this))
-    this.canvas.addEventListener('wheel', this.onScroll.bind(this))
+    // Mouse support
+    this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this), false)
+    this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false)
+    this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this), false)
+    this.canvas.addEventListener('wheel', this.onScroll.bind(this), false)
+
+    // Touchscreen support
+    this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this), false)
+    this.canvas.addEventListener('touchmove', this.onTouchMove.bind(this), false)
+    this.canvas.addEventListener('touchend', this.onTouchEnd.bind(this), false)
+
+    // Other events
+    this.canvas.addEventListener('resize', this.onResize.bind(this), false)
 
     root.appendChild(this.canvas)
     this.calcViewBox()
@@ -69,7 +77,7 @@ export class Canvas {
     this.canvas.setAttribute("viewBox", viewBoxStr)
   }
 
-  getMousePosition(event: MouseEvent): Point {
+  getMousePosition(event: MouseEvent | Touch): Point {
     const bbox = this.canvas.getBoundingClientRect()
     const x = (event.clientX - bbox.left) / bbox.width
     const y = (event.clientY - bbox.top) / bbox.height
@@ -86,7 +94,7 @@ export class Canvas {
     this.clickOffset = new Point(this.offset.x, this.offset.y)
     this.clickPosition = this.getMousePosition(event)
 
-    console.debug("[canvas]: click", this.clickPosition)
+    console.debug("[canvas]: mousedown", this.clickPosition)
   }
 
   onMouseMove(event: MouseEvent) {
@@ -116,6 +124,39 @@ export class Canvas {
     this.calcViewBox()
 
     console.debug("[canvas]: scroll", this.scale)
+  }
+
+  onTouchStart(event: TouchEvent) {
+    event.preventDefault()
+
+    // Assume a single touch for now
+    const touch = event.changedTouches[0]
+    this.clickOffset = new Point(this.offset.x, this.offset.y)
+    this.clickPosition = this.getMousePosition(touch)
+
+    console.debug("[canvas]: touchstart", this.clickPosition)
+  }
+
+  onTouchMove(event: TouchEvent) {
+    event.preventDefault()
+
+    // Assume a single touch for now
+    const touch = event.changedTouches[0]
+    const touchPos = this.getMousePosition(touch)
+    const delta = touchPos.minus(this.clickPosition)
+
+    const x = this.clickOffset.x - (delta.x * this.width)
+    const y = this.clickOffset.y - (delta.y * this.height)
+
+    this.offset = new Point(x, y)
+    this.calcViewBox()
+
+    console.debug("[canvas]: touchmove", delta)
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    event.preventDefault()
+    console.debug("[canvas]: touchend", event)
   }
 
   setBackground(item: CanvasItem) {

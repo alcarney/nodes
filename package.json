@@ -6,7 +6,7 @@
   "main": "./src/main.ts",
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "tsc --watch"
+    "start": "webpack --mode development"
   },
   "author": "Alex Carney",
   "license": "MIT",
