@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "description": "Node editor",
   "private": true,
-  "main": "src/main.ts",
+  "main": "./src/main.ts",
   "scripts": {
     "build": "webpack --mode production",
     "watch": "tsc --watch"
   },
-  "author": "",
+  "author": "Alex Carney",
   "license": "MIT",
   "devDependencies": {
     "ts-loader": "^6.2.1",
